@@ -1,0 +1,27 @@
+table{
+  border-style: solid;
+  border-width: 1px;
+  width: 800px;
+  height: 600px;
+}
+
+.street {
+  border-style: solid;
+  border-width: 1px;
+}
+
+
+.corner{
+  border-style: solid;
+  border-width: 1px;
+  height: 80px;
+  width: 80px;
+}
+
+.center{
+  border-style: none;
+}
+
+.wrap{
+  vertical-align: bottom;
+}
