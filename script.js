@@ -172,7 +172,7 @@ function showCard(cardNumber) {
   document.querySelector(".buyingPanel").innerHTML +=
   "<tr><td class=cardColor style=background-color:" + square[cardNumber].color + "></td></tr>"
   + "<tr><td class=cardName>" + square[cardNumber].name + "</td></tr>"
-  + "<tr><td class=cardPrice>" + square[cardNumber].price + "$" "</td></tr>";
+  + "<tr><td class=cardPrice>" + square[cardNumber].price + "$" + "</td></tr>";
 }
 
 
