@@ -208,6 +208,7 @@ function buyCard(playerNumber) {
   else {
     alert("Your budget is too low");
   }
+
 }
 
 
