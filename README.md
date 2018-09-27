@@ -1,3 +1,5 @@
 # Monopoly
 Already done:
-> player movement
+- player movement
+
+demo: https://jkrasik.github.io/monopoly/
