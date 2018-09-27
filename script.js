@@ -6,6 +6,7 @@ var streetMaker = function(name, price, color) {
 }
 
 var playerMaker = function(color, id) {
+  this.id = id;
   this.color = color;
   this.budget = 1500;
   this.position = 0;
@@ -13,8 +14,13 @@ var playerMaker = function(color, id) {
 }
 
 
+
+
 var square = [];
 var player = [];
+var gameState = function() {
+  this.currentPlayer = 0;
+}
 
 square[0] = new streetMaker("GO");
 square[1] = new streetMaker("MEDITERRANEAN AVENUE", 60, "BROWN");
@@ -105,6 +111,7 @@ function rollDice() {
   for(i = 0; i < player.length; i++) {
     if(player[i].availableTurns == 1){
       currentPlayer = i;
+      gameState.currentPlayer = i;
       player[i].availableTurns -=1;
   //player turn ended
       if(i == player.length - 1){
@@ -126,15 +133,16 @@ function rollDice() {
 
 function movePlayer(playerNumber, numberOfSquares) {
   //remove players from the board
+  let current = player[playerNumber];
   for(i = 0; i < player.length; i++) {
     document.getElementById("cell" + player[i].position).querySelector(".playerStanding").innerHTML = "";
   }
   //change position of current player
-  player[playerNumber].position += numberOfSquares;
+  current.position += numberOfSquares;
   //if player moves past the start add 200$ to his budget
-  if(player[playerNumber].position > 38) {
-    player[playerNumber].position -= 39;
-    player[playerNumber].budget += 200;
+  if(current.position > 38) {
+    current.position -= 39;
+    current.budget += 200;
     changeStatboardBudget(playerNumber);
   }
   //draw all the players on board
@@ -144,39 +152,73 @@ function movePlayer(playerNumber, numberOfSquares) {
   }
 
   //taxes
-  if(player[playerNumber].position == 4 || player[playerNumber].position == 38){
-    player[playerNumber].budget -= 200;
+  if(current.position == 4 || current.position == 38){
+    current.budget -= 200;
     changeStatboardBudget(playerNumber);
   }
 
   //community chest
-  else if( player[playerNumber].position == 2 || player[playerNumber].position == 17 || player[playerNumber].position == 33){
+  else if( current.position == 2 || current.position == 17 || current.position == 33){
   }
 
   //chances
-  else if( player[playerNumber].position == 7 || player[playerNumber].position == 22 || player[playerNumber].position == 36){
+  else if( current.position == 7 || current.position == 22 || current.position == 36){
   }
 
   //others
-  else if( player[playerNumber].position == 0 || player[playerNumber].position == 10 || player[playerNumber].position == 20 || player[playerNumber].position == 30){
+  else if( current.position == 0 || current.position == 10 || current.position == 20 || current.position == 30){
   }
   //streets
   else{
-    dice.disabled = true;
-    showCard(player[playerNumber].position);
-    
+    if(square[current.position].owner == null){
+      dice.disabled = true;
+      buy.disabled = false;
+      notBuy.disabled = false;
+      showCard(current.position);
+    }
+
+    else{
+
+    }
   }
 }
 
 function showCard(cardNumber) {
-  document.querySelector(".buyingPanel").innerHTML +=
+  document.querySelector(".cardShowcase").innerHTML =
   "<tr><td class=cardColor style=background-color:" + square[cardNumber].color + "></td></tr>"
   + "<tr><td class=cardName>" + square[cardNumber].name + "</td></tr>"
-  + "<tr><td class=cardPrice>" + square[cardNumber].price + "$" "</td></tr>";
+  + "<tr><td class=cardPrice>" + square[cardNumber].price + "$" + "</td></tr>";
+}
+
+function buyCard(playerNumber) {
+  let current = player[playerNumber];
+
+  if(current.budget >= square[current.position].price) {
+    current.budget -= square[current.position].price;
+    square[current.position].owner = current.id;
+
+    document.getElementById("cell" + current.position).querySelector(".owner").style.backgroundColor = current.color;
+    changeStatboardBudget(playerNumber);
+
+    buy.disabled = true;
+    notBuy.disabled = true;
+    dice.disabled = false;
+  }
+
+  else {
+    alert("Your budget is too low");
+  }
 }
 
 
 drawBoard();
 drawStatboard();
+
 const dice = document.querySelector(".dice");
+const buy = document.querySelector(".buy");
+const notBuy = document.querySelector(".notBuy");
+
 dice.addEventListener('click', rollDice);
+buy.addEventListener('click', function(){
+  buyCard(gameState.currentPlayer);
+});
