@@ -13,14 +13,14 @@ var playerMaker = function(color, id) {
   this.availableTurns = 0;
 }
 
-
-
-
-var square = [];
-var player = [];
 var gameState = function() {
   this.currentPlayer = 0;
 }
+
+const square = [];
+var player = [];
+const chance = [];
+
 
 square[0] = new streetMaker("GO");
 square[1] = new streetMaker("MEDITERRANEAN AVENUE", 60, "BROWN");
@@ -63,11 +63,152 @@ square[37] = new streetMaker("PARK PLACE", 350, "BLUE");
 square[38] = new streetMaker("LUXURY TAX");
 square[39] = new streetMaker("BOARDWALK", 400, "BLUE");
 
+chance[0] = {
+  desc: 'Advance to "Go". (Collect $200)',
+  action: function() {
+    movePlayer(gameState.currentPlayer, 39 - player[gameState.currentPlayer].position);
+  }
+};
+
+chance[1] = {
+  desc: "Advance to Illinois Ave. If you pass Go, collect $200",
+  action: function() {
+    if(player[gameState.currentPlayer].position > 24) {
+      movePlayer(gameState.currentPlayer, 39 - player[gameState.currentPlayer].position + 24);
+    }
+    else{
+      movePlayer(gameState.currentPlayer, 24 - player[gameState.currentPlayer].position);
+    }
+  }
+}
+
+chance[2] = {
+  desc: "Advance to St. Charles Place. If you pass Go, collect $200.",
+  action: function() {
+    if(player[gameState.currentPlayer].position > 11) {
+      movePlayer(gameState.currentPlayer, 39 - player[gameState.currentPlayer].position + 11);
+    }
+    else{
+      movePlayer(gameState.currentPlayer, 11 - player[gameState.currentPlayer].position);
+    }
+  }
+}
+
+chance[3] = {
+  desc: "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times the amount thrown.",
+  action: function() {
+    alert("placeholder")
+  }
+}
+
+chance[4] = {
+  desc: "Advance token to the nearest Railroad and pay owner twice the rental to which he/she is otherwise entitled. If Railroad is unowned, you may buy it from the Bank.",
+  action: function() {
+    alert("placeholder")
+  }
+}
+
+chance[5] = {
+  desc: "Bank pays you dividend of $50.",
+  action: function() {
+    player[gameState,currentPlayer].budget += 50;
+  }
+}
+
+chance[6] = {
+  desc: "Get out of Jail Free. This card may be kept until needed, or traded/sold.",
+  action: function() {
+    alert("placeholder");
+  }
+}
+
+chance[7] = {
+  desc: "Go Back Three Spaces.",
+  action: function() {
+    movePlayer(gameState.currentPlayer, -3);
+  }
+}
+
+chance[8] = {
+  desc: "Go directly to Jail. Do not pass Go, do not collect $200.",
+  action: function() {
+    alert("placeholder");
+  }
+}
+
+chance[8] = {
+  desc: "Make general repairs on all your property: For each house pay $25, For each hotel pay $100.",
+  action: function() {
+    let toGo = 39 - player[gameState.currentPlayer].position;
+    movePlayer(gameState.currentPlayer, toGo);
+  }
+}
+
+chance[8] = {
+  desc: "Make general repairs on all your property: For each house pay $25, For each hotel pay $100.",
+  action: function() {
+    alert("placeholder");
+  }
+}
+
+chance[9] = {
+  desc: "Pay poor tax of $15",
+  action: function() {
+    player[gameState,currentPlayer].budget -= 15;
+  }
+}
+
+chance[10] = {
+  desc: "Take a trip to Reading Railroad. If you pass Go, collect $200.",
+  action: function() {
+    if(player[gameState.currentPlayer].position > 5) {
+      movePlayer(gameState.currentPlayer, 39 - player[gameState.currentPlayer].position + 5);
+    }
+    else{
+      movePlayer(gameState.currentPlayer, 5 - player[gameState.currentPlayer].position);
+    }
+  }
+}
+
+chance[11] = {
+  desc: "Take a walk on the Boardwalk.",
+  action: function() {
+      movePlayer(gameState.currentPlayer, 38 - player[gameState.currentPlayer].position);
+  }
+}
+
+chance[12] = {
+  desc: "You have been elected Chairman of the Board. Pay each player $50.",
+  action: function() {
+    for(i = 0; i < player.length; i++) {
+      if(i != gameState.currentPlayer) {
+        player[gameState.currentPlayer].budget += 50;
+      }
+    }
+  }
+}
+
+chance[13] = {
+  desc: "Your building and loan matures. Receive $150.",
+  action: function() {
+    player[gameState,currentPlayer].budget += 150;
+  }
+}
+
+chance[14] = {
+  desc: "You have won a crossword competition. Collect $100.",
+  action: function() {
+    player[gameState,currentPlayer].budget += 100;
+  }
+}
+
+
 player[0] = new playerMaker("RED", 0);
 player[1] = new playerMaker("BLUE", 1);
 player[2] = new playerMaker("GREEN", 2);
 
 player[0].availableTurns = 1;
+player[1].availableTurns = -1;
 
 
 function drawBoard() {
@@ -119,8 +260,11 @@ function rollDice() {
       }
   //next player turn
       else {
-      i++;
-      player[i].availableTurns = 1;
+        i++;
+        if(player[i].availableTurns < 0){
+          player[i].availableTurns += 1;
+        }
+        player[i].availableTurns = 1;
       }
     }
   }
@@ -159,10 +303,14 @@ function movePlayer(playerNumber, numberOfSquares) {
 
   //community chest
   else if( current.position == 2 || current.position == 17 || current.position == 33){
+    chance[1].action();
+    alert(chance[1].desc);
   }
 
   //chances
   else if( current.position == 7 || current.position == 22 || current.position == 36){
+    chance[1].action();
+    alert(chance[1].desc);
   }
 
   //others
@@ -170,16 +318,25 @@ function movePlayer(playerNumber, numberOfSquares) {
   }
   //streets
   else{
+    //if street is not owned you can buy it
     if(square[current.position].owner == null){
       dice.disabled = true;
       buy.disabled = false;
       notBuy.disabled = false;
       showCard(current.position);
     }
+    //if street is owned you have to pay rent
+    else if(square[current.position].owner != current.id) {;
+      alert("You need to pay " + square[current.position].price +"$ of rent!");
+      //take rent from player
+      current.budget -= square[current.position].price;
+      //give rent for owner
+      player[square[current.position].owner].budget += square[current.position].price;
 
-    else{
-
+      changeStatboardBudget(current.id);
+      changeStatboardBudget(square[current.position].owner);
     }
+
   }
 }
 
@@ -211,6 +368,13 @@ function buyCard(playerNumber) {
 
 }
 
+function notBuyCard(playerNumber) {
+  let current = player[playerNumber];
+  buy.disabled = true;
+  notBuy.disabled = true;
+  dice.disabled = false;
+}
+
 
 drawBoard();
 drawStatboard();
@@ -220,6 +384,11 @@ const buy = document.querySelector(".buy");
 const notBuy = document.querySelector(".notBuy");
 
 dice.addEventListener('click', rollDice);
-buy.addEventListener('click', function(){
+
+buy.addEventListener('click', function() {
   buyCard(gameState.currentPlayer);
+});
+
+notBuy.addEventListener('click', function() {
+  notBuyCard(gameState.currentPlayer);
 });
